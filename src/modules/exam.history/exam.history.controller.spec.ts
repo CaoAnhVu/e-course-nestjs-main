@@ -1,20 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ExamHistoryService } from './exam.history.service';
 import { getModelToken } from '@nestjs/mongoose';
-import { ExamHistory } from './exam.history.model'; // Ensure this path is correct
-import { ExamQuestion } from '../exam.question/exam.question.model'; // Adjust if necessary
-import { ExamLesson } from '../exam.lesson/exam.lesson.model'; // Adjust if necessary
+import { ExamHistory } from './exam.history.schema';
 import { REQUEST } from '@nestjs/core';
-import { AuthenticatedRequest } from '../../interfaces/authenticated.request.interface';
 
 describe('ExamHistoryService', () => {
   let service: ExamHistoryService;
-  let mockHistoryModel: any;
-  let mockQuestionModel: any;
-  let mockLessonModel: any;
 
   beforeEach(async () => {
-    mockHistoryModel = {
+    const mockExamHistoryModel = {
       find: jest.fn().mockReturnValue({
         select: jest.fn().mockReturnValue({
           skip: jest.fn().mockReturnValue({
@@ -27,11 +21,11 @@ describe('ExamHistoryService', () => {
       findByIdAndUpdate: jest.fn(),
     };
 
-    mockQuestionModel = {
+    const mockQuestionModel = {
       findById: jest.fn(),
     };
 
-    mockLessonModel = {
+    const mockLessonModel = {
       findById: jest.fn(),
     };
 
@@ -39,20 +33,20 @@ describe('ExamHistoryService', () => {
       providers: [
         ExamHistoryService,
         {
-          provide: getModelToken('EXAM_HISTORY_MODEL'), // Use the correct token
-          useValue: mockHistoryModel,
+          provide: getModelToken(ExamHistory.name), // Use the name of your schema
+          useValue: mockExamHistoryModel,
         },
         {
-          provide: getModelToken('EXAM_QUESTION_MODEL'), // Ensure this matches your actual model token
+          provide: getModelToken('EXAM_QUESTION_MODEL'), // Ensure this matches the model token used in your application
           useValue: mockQuestionModel,
         },
         {
-          provide: getModelToken('EXAM_LESSON_MODEL'), // Ensure this matches your actual model token
+          provide: getModelToken('EXAM_LESSON_MODEL'),
           useValue: mockLessonModel,
         },
         {
           provide: REQUEST,
-          useValue: {} as AuthenticatedRequest, // Mock authenticated request
+          useValue: {}, // Mocking the request if necessary
         },
       ],
     }).compile();
@@ -64,5 +58,5 @@ describe('ExamHistoryService', () => {
     expect(service).toBeDefined();
   });
 
-  // Add additional tests as needed
+  // Add more tests as needed
 });

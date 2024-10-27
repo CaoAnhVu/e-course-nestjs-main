@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsNumber, IsString, IsMongoId, IsOptional, IsNotEmpty } from 'class-validator';
+import {
+  IsDate,
+  IsNumber,
+  IsString,
+  IsMongoId,
+  IsOptional,
+  IsNotEmpty,
+} from 'class-validator';
 
 export class CreateCourseOrderDTO {
   @ApiProperty()
@@ -30,7 +37,7 @@ export class CreateCourseOrderDTO {
 
 export class UpdateCourseOrderDTO {
   @ApiProperty({ required: false })
-  @IsOptional()  
+  @IsOptional()
   @IsMongoId()
   readonly user?: string;
 

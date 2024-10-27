@@ -12,6 +12,7 @@ import {
   Res,
   Scope,
   UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { CourseLessonService } from './course.lesson.service';
 import { CourseLesson } from '../../modules/course.lesson/course.lesson.model';
@@ -73,8 +74,12 @@ export class CourseLessonController {
   @Delete(':id')
   @UseGuards(AuthGuard, RolesGuard)
   @HasRoles(RoleType.ADMIN, RoleType.TEACHER)
-  deleteLessonById(@Param('id', ParseObjectIdPipe) id: string) {
-    return this.lessonService.deleteById(id);
+  async deleteLessonById(@Param('id', ParseObjectIdPipe) id: string) {
+    const result = await this.lessonService.deleteById(id);
+    if (!result) {
+      throw new NotFoundException('Lesson not found');
+    }
+    return { message: 'Lesson deleted successfully', success: true };
   }
 
   @Get('videosOf/:id')

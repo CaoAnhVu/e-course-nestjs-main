@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ExamHistory, ExamHistorySchema } from './exam.history.schema';
 import { ExamHistoryService } from './exam.history.service';
-import { ExamHistorySchema } from './exam.history.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: 'EXAM_HISTORY_MODEL', schema: ExamHistorySchema },
+      { name: ExamHistory.name, schema: ExamHistorySchema },
     ]),
   ],
   providers: [ExamHistoryService],

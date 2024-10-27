@@ -22,7 +22,7 @@ import {
 @Injectable({ scope: Scope.REQUEST })
 export class CourseLessonService {
   constructor(
-    @Inject(COURSE_LESSON_MODEL) private lessonModel: Model<CourseLesson>,
+    @Inject(COURSE_LESSON_MODEL) protected lessonModel: Model<CourseLesson>,
     @Inject(COURSE_VIDEO_MODEL) private videoModel: Model<CourseVideo>,
     @Inject(REQUEST) private req: AuthenticatedRequest,
   ) {}
@@ -51,7 +51,7 @@ export class CourseLessonService {
       throw new BadRequestException('Please enter correct id.');
     }
 
-    const res = this.lessonModel.findById(id);
+    const res = await this.lessonModel.findById(id); // Thêm await ở đây
     if (!res) {
       throw new NotFoundException('CourseLesson not found.');
     }
@@ -101,16 +101,19 @@ export class CourseLessonService {
     });
 
     if (existingSelection) {
-      if (existingSelection.id != id) {
+      if (existingSelection._id.toString() !== id) {
+        // Sử dụng _id thay vì id
         throw new BadRequestException('Selection already exists');
       }
     }
 
-    const updateCourseLesson = await this.lessonModel
-      .findByIdAndUpdate(id, data)
-      .setOptions({ overwrite: true, new: true });
+    const updateCourseLesson = await this.lessonModel.findByIdAndUpdate(
+      id,
+      data,
+      { new: true },
+    ); // Bỏ setOptions vì options đã nằm trong findByIdAndUpdate
     if (!updateCourseLesson) {
-      throw new NotFoundException();
+      throw new NotFoundException('CourseLesson not found.');
     }
     return updateCourseLesson;
   }
@@ -122,6 +125,9 @@ export class CourseLessonService {
     }
 
     const value = await this.lessonModel.findById(id);
+    if (!value) {
+      throw new NotFoundException('CourseLesson not found.');
+    }
     return this.softRemove(value);
   }
 
@@ -131,15 +137,14 @@ export class CourseLessonService {
     } else {
       value.deleteAt = new Date();
     }
-    const deleted = await this.lessonModel
-      .findByIdAndUpdate(value.id, value)
-      .setOptions({ overwrite: true, new: true });
-
+    const deleted = await this.lessonModel.findByIdAndUpdate(value._id, value, {
+      new: true,
+    }); // Sử dụng _id
     return deleted;
   }
 
-  videosOf(id: string): Promise<CourseVideo[]> {
-    const lessons = this.videoModel
+  async videosOf(id: string): Promise<CourseVideo[]> {
+    const lessons = await this.videoModel
       .find({
         lesson: { _id: id },
       })
