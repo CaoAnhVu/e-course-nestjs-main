@@ -244,16 +244,17 @@ export class UserService {
     requestBody: ChangeAvatarDTO,
     currentUser: User,
   ) {
-    const fileImage = requestBody.file;
-    let user = await this.userModel.findById(id);
-    if (!user) {
-      throw new NotFoundException('User does not exist');
-    }
-    Permission.check(id, currentUser);
-
+    const fileImage = requestBody.file; // 1
     try {
+      let user = await this.userModel.findById(id); // 2
+      if (!user) {
+        //3
+        throw new NotFoundException('User does not exist'); // 4
+      }
+      Permission.check(id, currentUser); // 5
       if (user.photoPublicId) {
-        this.cloudinaryService.destroyFile(user.photoPublicId);
+        // 6
+        this.cloudinaryService.destroyFile(user.photoPublicId); // 7
       }
 
       const imageUpload = await this.cloudinaryService.uploadFile(
@@ -261,21 +262,21 @@ export class UserService {
         USER_AVATAR,
         id,
         RESOURCE_TYPE_IMAGE,
-      );
-      user.photoPublicId = imageUpload.public_id;
-      user.photoUrl = imageUpload.url;
+      ); // 8
+      user.photoPublicId = imageUpload.public_id; // 9
+      user.photoUrl = imageUpload.url; // 9
 
-      await this.userModel.findByIdAndUpdate(id, user);
-      const getUser = await this.userModel.findById(id);
+      await this.userModel.findByIdAndUpdate(id, user); // 9
+      const getUser = await this.userModel.findById(id); // 9
 
       return {
         username: getUser.username,
         photoUrl: getUser.photoUrl,
         email: getUser.email,
-      };
+      }; // 10
     } catch (err) {
-      console.log(`Faill error: ${err}`);
-      throw new BadRequestException(`Failed to upload image: ${err}`);
+      console.log('Faill error: ${err}'); // 11
+      throw new BadRequestException('Failed to upload image: ${err}'); // 11
     }
   }
 

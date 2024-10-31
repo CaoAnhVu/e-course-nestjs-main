@@ -83,11 +83,12 @@ export class ExamService {
 
   // Tạo bài kiểm tra mới
   async save(data: CreateExamDTO): Promise<Exam> {
-    const fileImage = data.file;
-    const existingExam = await this.examModel.findOne({ title: data.title });
+    const fileImage = data.file; // 1
+    const existingExam = await this.examModel.findOne({ title: data.title }); // 2
 
     if (existingExam) {
-      throw new BadRequestException('Exam already exists');
+      // 3
+      throw new BadRequestException('Exam already exists'); // 4
     }
 
     try {
@@ -96,16 +97,16 @@ export class ExamService {
         FILE_COURSE_INTRO,
         fileImage.fieldname,
         RESOURCE_TYPE_IMAGE,
-      );
+      ); // 5
 
-      data.imageUrl = resultImage.url;
-      data.imagePublicId = resultImage.public_id;
+      data.imageUrl = resultImage.url; // 6
+      data.imagePublicId = resultImage.public_id; // 6
 
-      const newExam = new this.examModel(data);
-      return await newExam.save(); // Sử dụng .save() để lưu mô hình
+      const newExam = new this.examModel(data); // 6
+      return await newExam.save(); // 7
     } catch (err) {
-      console.error(`Error uploading image: ${err.message}`);
-      throw new BadRequestException(`Failed to upload image: ${err.message}`);
+      console.error(`Error uploading image: ${err.message}`); // 8
+      throw new BadRequestException(`Failed to upload image: ${err.message}`); // 8
     }
   }
 
